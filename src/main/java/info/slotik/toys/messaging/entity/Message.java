@@ -43,8 +43,9 @@ public class Message
         return userId;
     }
 
-    public String toString() {
-        return String.format("[#%05d] %s: %s", id, userId, content);
+    public Message withId(Long id)
+    {
+        return create(id, userId, content);
     }
 
     public static Message fromData(String userId, String content)
@@ -52,9 +53,9 @@ public class Message
         return create(null, userId, content);
     }
 
-    static Message create(Long id, String userId, String content)
+    private static Message create(Long id, String userId, String content)
     {
-        Defense.notNull("User identifier cannot be null", userId);
+        Defense.notNull("User ID cannot be null", userId);
         Defense.notNull("Message content cannot be null", content);
 
         Message result = new Message();

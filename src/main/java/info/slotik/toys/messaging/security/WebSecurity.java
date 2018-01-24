@@ -11,7 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 public class WebSecurity extends WebSecurityConfigurerAdapter
 {
     @Value("${messages.base.path}")
-    private String path;
+    private String basePath;
 
     @Override
     protected void configure(HttpSecurity security) throws Exception
@@ -20,9 +20,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
-            .addFilter(new SimpleAuthorizationFilter(authenticationManager()))
             .authorizeRequests()
-            .antMatchers(HttpMethod.GET, this.path).permitAll()
+            .antMatchers(HttpMethod.GET, this.basePath).permitAll()
             .anyRequest().authenticated();
     }
 }
