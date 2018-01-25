@@ -10,6 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter
 {
+    public static final String AUTHORIZATION_TYPE = "Silly";
+
     @Value("${messages.base.path}")
     private String basePath;
 
@@ -20,6 +22,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter
             .csrf().disable()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
+            .addFilter(new SillyAuthenticationFilter(authenticationManager()))
             .authorizeRequests()
             .antMatchers(HttpMethod.GET, this.basePath).permitAll()
             .anyRequest().authenticated();

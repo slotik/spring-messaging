@@ -23,4 +23,10 @@ public class JpaMessageService implements MessageService
     {
         return repository.findAll();
     }
+
+    @Override
+    public Message add(Message message)
+    {
+        return this.repository.save(message.withId(null));
+    }
 }

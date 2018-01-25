@@ -7,4 +7,6 @@ import java.util.List;
 public interface MessageService
 {
     List<Message> findAll();
+
+    Message add(Message message);
 }
