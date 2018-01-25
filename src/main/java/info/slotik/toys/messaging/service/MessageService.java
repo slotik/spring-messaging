@@ -8,5 +8,7 @@ public interface MessageService
 {
     List<Message> findAll();
 
+    Message find(long id);
+
     Message add(Message message);
 }

@@ -24,7 +24,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter
             .and()
             .addFilter(new SillyAuthenticationFilter(authenticationManager()))
             .authorizeRequests()
-            .antMatchers(HttpMethod.GET, this.basePath).permitAll()
+            .antMatchers(HttpMethod.GET).permitAll()
             .anyRequest().authenticated();
     }
 }

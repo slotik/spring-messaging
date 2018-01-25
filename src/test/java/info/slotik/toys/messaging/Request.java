@@ -7,5 +7,5 @@ import java.net.URI;
 
 interface Request<T>
 {
-    ResponseEntity<T> execute(TestRestTemplate template, URI baseURI);
+    ResponseEntity<T> exchange(TestRestTemplate template, URI baseURI);
 }

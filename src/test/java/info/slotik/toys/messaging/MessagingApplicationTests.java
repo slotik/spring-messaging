@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,7 +67,33 @@ public class MessagingApplicationTests
     @Test
     public void several_messages_can_be_created_and_subsequently_retrieved()
     {
-        Message[] inputMessages = {
+        Message[] inputMessages = getSampleMessages();
+        addMessagesAndAssertResponseIsCorrect(inputMessages);
+        assertMessages(inputMessages);
+    }
+
+    @Test
+    public void can_retrieve_individual_messages()
+    {
+        List<Message> messages = addMessagesAndAssertResponseIsCorrect(getSampleMessages());
+        for (Message each : messages)
+        {
+            assertSingleMessage(each.getId(), each);
+        }
+    }
+
+    @Test
+    public void non_existing_message_is_not_found()
+    {
+        ResponseEntity<Message> response = Requests
+            .getMessage(777)
+            .exchange(template, baseURI());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    private Message[] getSampleMessages()
+    {
+        return new Message[]{
             Message.fromData("user1", "content1"),
             Message.fromData("user2", "yes! content1!"),
             Message.fromData("user1", "content2"),
@@ -75,19 +102,19 @@ public class MessagingApplicationTests
             Message.fromData("user2", "content3"),
             Message.fromData("user3", "content3"),
         };
-        addMessagesAndAssertResponseIsCorrect(inputMessages);
-        assertMessages(inputMessages);
     }
 
-    private void addMessagesAndAssertResponseIsCorrect(Message... messages)
+    private List<Message> addMessagesAndAssertResponseIsCorrect(Message... messages)
     {
+        List<Message> result = new ArrayList<>();
         for (Message each : messages)
         {
-            addMessageAndAssertResponseIsCorrect(each);
+            result.add(addMessageAndAssertResponseIsCorrect(each));
         }
+        return result;
     }
 
-    private void addMessageAndAssertResponseIsCorrect(Message inputMessage)
+    private Message addMessageAndAssertResponseIsCorrect(Message inputMessage)
     {
         ResponseEntity<Message> response = attemptAddMessage(
             Requests.authorization(inputMessage.getUserId()),
@@ -101,13 +128,15 @@ public class MessagingApplicationTests
         assertEquals(
             baseURI().resolve(URI.create(String.format("%s/%d", basePath, result.getId()))),
             response.getHeaders().getLocation());
+
+        return result;
     }
 
     private ResponseEntity<Message> attemptAddMessage(String authorizationHeader, Message message)
     {
         return Requests
             .addMessageRequest(authorizationHeader, message)
-            .execute(template, baseURI());
+            .exchange(template, baseURI());
     }
 
     private void assertNoMessages()
@@ -133,6 +162,12 @@ public class MessagingApplicationTests
         }
     }
 
+    private void assertSingleMessage(long messageId, Message expected)
+    {
+        Message actual = getMessage(messageId).getBody();
+        assertMessageEquals(expected, actual);
+    }
+
     private void assertMessageEquals(Message expected, Message actual)
     {
         assertNotNull("Message ID is null", actual.getId());
@@ -148,7 +183,12 @@ public class MessagingApplicationTests
 
     private ResponseEntity<List<Message>> getAllMessages()
     {
-        return Requests.getAllMessages().execute(template, baseURI());
+        return Requests.getAllMessages().exchange(template, baseURI());
+    }
+
+    private ResponseEntity<Message> getMessage(long id)
+    {
+        return Requests.getMessage(id).exchange(template, baseURI());
     }
 
     private URI baseURI()

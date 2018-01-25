@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -37,6 +38,23 @@ public class MessageController
     public ResponseEntity<List<Message>> getAllMessages()
     {
         return ResponseEntity.ok().body(service.findAll());
+    }
+
+    @RequestMapping(
+        method = RequestMethod.GET,
+        path = "${messages.base.path}/{id}"
+    )
+    public ResponseEntity<Message> getMessage(@PathVariable long id)
+    {
+        Message message = service.find(id);
+        if (message == null)
+        {
+            return ResponseEntity.notFound().build();
+        }
+        else
+        {
+            return ResponseEntity.ok().body(message);
+        }
     }
 
     @RequestMapping(

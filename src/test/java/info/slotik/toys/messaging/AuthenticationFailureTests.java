@@ -54,9 +54,9 @@ public class AuthenticationFailureTests
 
     @Test
     @Parameters(source = MissingAuthorizationHeaderRequestProvider.class)
-    public void fails_when_authorization_header_is_missing(Request<?> r)
+    public void fails_when_authorization_header_is_missing(Request<?> request)
     {
-        ResponseEntity<?> response = r.execute(template, baseURI());
+        ResponseEntity<?> response = request.exchange(template, baseURI());
         // FIXME shouldn't this actually be HttpStatus.UNAUTHORIZED?
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
@@ -72,9 +72,9 @@ public class AuthenticationFailureTests
 
     @Test
     @Parameters(source = WrongAuthenticationTypeRequestProvider.class)
-    public void fails_when_wrong_authentication_type_is_used(Request<?> r)
+    public void fails_when_wrong_authentication_type_is_used(Request<?> request)
     {
-        ResponseEntity<?> response = r.execute(template, baseURI());
+        ResponseEntity<?> response = request.exchange(template, baseURI());
         // FIXME shouldn't this actually be HttpStatus.UNAUTHORIZED?
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
@@ -90,9 +90,9 @@ public class AuthenticationFailureTests
 
     @Test
     @Parameters(source = MalformedUserIdRequestProvider.class)
-    public void fails_when_user_id_is_malformed(Request<?> r)
+    public void fails_when_user_id_is_malformed(Request<?> request)
     {
-        ResponseEntity<?> response = r.execute(template, baseURI());
+        ResponseEntity<?> response = request.exchange(template, baseURI());
         // FIXME shouldn't this actually be HttpStatus.UNAUTHORIZED?
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
@@ -108,9 +108,9 @@ public class AuthenticationFailureTests
 
     @Test
     @Parameters(source = UserMismatchRequestProvider.class)
-    public void fails_when_authenticated_user_does_not_match_user_in_request_body(Request<?> r)
+    public void fails_when_authenticated_user_does_not_match_user_in_request_body(Request<?> request)
     {
-        ResponseEntity<?> response = r.execute(template, baseURI());
+        ResponseEntity<?> response = request.exchange(template, baseURI());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 

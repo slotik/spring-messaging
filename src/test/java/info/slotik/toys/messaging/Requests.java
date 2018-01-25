@@ -16,10 +16,20 @@ class Requests
         return WebSecurity.AUTHORIZATION_TYPE + " " + userId;
     }
 
-    static Request<List<Message>> getAllMessages() {
+    static Request<List<Message>> getAllMessages()
+    {
         return (template, baseURI) ->
-        template
-            .exchange(baseURI, HttpMethod.GET, null, messageListType());
+            template.exchange(baseURI, HttpMethod.GET, null, messageListType());
+    }
+
+
+    static Request<Message> getMessage(long id)
+    {
+        return (template, baseURI) ->
+        {
+            String uri = String.format("%s/%d", baseURI.toString(), id);
+            return template.exchange(uri, HttpMethod.GET, null, Message.class);
+        };
     }
 
     static Request<Message> addMessageRequest(String authorizationHeader, Message message)
