@@ -34,7 +34,7 @@ $ curl -H "Content-Type: application/json" -H "Authorization: Silly anotherUser"
 ### Listing messages:
 
 ```
-$ curl -X GET localhost:8080/messages
+$ curl -X GET http://localhost:8080/messages
 [{"id":1,"userId":"user","content":"sample content"},{"id":2,"userId":"anotherUser","content":"another content"}]
 ```
 
@@ -42,7 +42,7 @@ $ curl -X GET localhost:8080/messages
 
 ```
 $ curl -H "Content-Type: application/json" -H "Authorization: Silly user" -X PUT http://localhost:8080/messages/1 -d '{ "userId": "user", "content": "some new content" }'
-$ curl -X GET localhost:8080/messages/1
+$ curl -X GET http://localhost:8080/messages/1
 {"id":1,"userId":"user","content":"new content"}
 ```
 
@@ -50,6 +50,6 @@ $ curl -X GET localhost:8080/messages/1
 
 ```
 $ curl -H "Content-Type: application/json" -H "Authorization: Silly user" -X DELETE http://localhost:8080/messages/1
-$ curl -X GET localhost:8080/messages
+$ curl -X GET http://localhost:8080/messages
 [{"id":2,"userId":"anotherUser","content":"another content"}]
 ```
