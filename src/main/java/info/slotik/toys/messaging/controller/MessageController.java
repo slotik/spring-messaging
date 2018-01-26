@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -64,7 +65,7 @@ public class MessageController
     public ResponseEntity<Message> createMessage(RequestEntity<Message> request)
     {
         Message message = request.getBody();
-        if (isInputMessageValid(message))
+        if (canManipulateMessage(message))
         {
             Message createdMessage = this.service.add(message);
             URI relativeLocation = URI.create(String.format("%s/%d", basePath, createdMessage.getId()));
@@ -79,11 +80,53 @@ public class MessageController
         }
     }
 
-    private boolean isInputMessageValid(Message message)
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        path = "${messages.base.path}/{id}"
+    )
+    public ResponseEntity<?> updateMessage(@PathVariable long id, @RequestBody Message input)
+    {
+        if (canManipulateMessage(input))
+        {
+            Message existing = service.find(id);
+            if (existing == null)
+            {
+                return ResponseEntity.notFound().build();
+            }
+            if (canManipulateMessage(existing))
+            {
+                service.update(input.withId(id));
+                return ResponseEntity.noContent().build();
+            }
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @RequestMapping(
+        method = RequestMethod.DELETE,
+        path = "${messages.base.path}/{id}"
+    )
+    public ResponseEntity<?> deleteMessage(@PathVariable long id)
+    {
+        Message existing = service.find(id);
+        if (existing == null)
+        {
+            return ResponseEntity.notFound().build();
+        }
+        if (canManipulateMessage(existing))
+        {
+            service.delete(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    private boolean canManipulateMessage(Message message)
     {
         return message != null &&
             message.getContent() != null &&
-            getAuthenticatedUser().equals(message.getUserId());
+            message.getUserId() != null &&
+            message.getUserId().equals(getAuthenticatedUser());
     }
 
     private String getAuthenticatedUser()

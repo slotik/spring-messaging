@@ -35,4 +35,16 @@ public class JpaMessageService implements MessageService
     {
         return this.repository.save(message.withId(null));
     }
+
+    @Override
+    public void update(Message message)
+    {
+        this.repository.save(message);
+    }
+
+    @Override
+    public void delete(long id)
+    {
+        this.repository.delete(id);
+    }
 }

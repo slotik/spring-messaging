@@ -11,4 +11,8 @@ public interface MessageService
     Message find(long id);
 
     Message add(Message message);
+
+    void update(Message message);
+
+    void delete(long id);
 }

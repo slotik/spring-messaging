@@ -91,6 +91,103 @@ public class MessagingApplicationTests
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
+    @Test
+    public void can_update_own_message()
+    {
+        String userId = "someUser123";
+        Message input = Message.fromData(userId, "initial content");
+        Message initial = Requests
+            .addMessage(Requests.authorization(userId), input)
+            .exchange(template, baseURI())
+            .getBody();
+
+        Message updated = Message.fromData(userId, "updated content");
+        ResponseEntity<?> response = Requests
+            .updateMessage(Requests.authorization(userId), initial.getId(), updated)
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertSingleMessage(initial.getId(), updated);
+        assertMessages(updated);
+    }
+
+    @Test
+    public void cannot_update_another_users_message()
+    {
+        String ownerId = "someUser123";
+        Message input = Message.fromData(ownerId, "initial content");
+        Message initial = Requests
+            .addMessage(Requests.authorization(ownerId), input)
+            .exchange(template, baseURI())
+            .getBody();
+
+        String updaterId = "anotherUser123";
+        Message updated = Message.fromData(updaterId, "updated content");
+        ResponseEntity<?> response = Requests
+            .updateMessage(Requests.authorization(updaterId), initial.getId(), updated)
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void cannot_update_non_existing_mesage() {
+        String updaterId = "user123";
+        long invalidId = 777L;
+        Message updated = Message.fromData(updaterId, "updated content");
+        ResponseEntity<?> response = Requests
+            .updateMessage(Requests.authorization(updaterId), invalidId, updated)
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void can_delete_own_message()
+    {
+        String userId = "someUser123";
+        Message input = Message.fromData(userId, "content");
+        Message initial = Requests
+            .addMessage(Requests.authorization(userId), input)
+            .exchange(template, baseURI())
+            .getBody();
+
+        ResponseEntity<?> response = Requests
+            .deleteMessage(Requests.authorization(userId), initial.getId())
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    public void cannot_delete_another_users_message()
+    {
+        String ownerId = "someUser123";
+        Message input = Message.fromData(ownerId, "content");
+        Message initial = Requests
+            .addMessage(Requests.authorization(ownerId), input)
+            .exchange(template, baseURI())
+            .getBody();
+
+        String deleterId = "anotherUser123";
+        ResponseEntity<?> response = Requests
+            .deleteMessage(Requests.authorization(deleterId), initial.getId())
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    public void cannot_delete_non_existing_mesage() {
+        String deleterId = "user123";
+        long invalidId = 777L;
+        ResponseEntity<?> response = Requests
+            .deleteMessage(Requests.authorization(deleterId), invalidId)
+            .exchange(template, baseURI());
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
     private Message[] getSampleMessages()
     {
         return new Message[]{
@@ -135,7 +232,7 @@ public class MessagingApplicationTests
     private ResponseEntity<Message> attemptAddMessage(String authorizationHeader, Message message)
     {
         return Requests
-            .addMessageRequest(authorizationHeader, message)
+            .addMessage(authorizationHeader, message)
             .exchange(template, baseURI());
     }
 

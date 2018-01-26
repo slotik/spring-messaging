@@ -66,7 +66,7 @@ public class AuthenticationFailureTests
         @ParameterProvider
         public static Request<?>[] provide()
         {
-            return authorizedRequests(null, "user");
+            return requestsRequiringAuthorization(null, "user");
         }
     }
 
@@ -84,7 +84,7 @@ public class AuthenticationFailureTests
         @ParameterProvider
         public static Request<?>[] provide()
         {
-            return authorizedRequests("Basic aHR0cHdhdGNoOmY=", "usSseEer");
+            return requestsRequiringAuthorization("Basic aHR0cHdhdGNoOmY=", "usSseEer");
         }
     }
 
@@ -102,7 +102,7 @@ public class AuthenticationFailureTests
         @ParameterProvider
         public static Request<?>[] provide()
         {
-            return authorizedRequests(Requests.authorization("invalid user id"), "1234user");
+            return requestsRequiringAuthorization(Requests.authorization("invalid user id"), "1234user");
         }
     }
 
@@ -119,15 +119,17 @@ public class AuthenticationFailureTests
         @ParameterProvider
         public static Request<?>[] provide()
         {
-            return authorizedRequests(Requests.authorization("nonUser"), "userRR");
+            return requestsRequiringAuthorization(Requests.authorization("nonUser"), "userRR");
         }
     }
 
-    private static Request<?>[] authorizedRequests(String authorizationHeader, String userId)
+    private static Request<?>[] requestsRequiringAuthorization(String authorizationHeader, String userId)
     {
         Message message = Message.fromData(userId, "very important content");
         return new Request<?>[]{
-            Requests.addMessageRequest(authorizationHeader, message),
+            Requests.addMessage(authorizationHeader, message),
+            Requests.addInitialThenUpdateToMessage(authorizationHeader, message),
+            Requests.addInitialThenDeleteMessage(authorizationHeader),
         };
     }
 
